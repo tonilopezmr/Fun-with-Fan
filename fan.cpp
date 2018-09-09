@@ -6,9 +6,12 @@ const int RELAY_FAST_PIN = 13;
 const int RELAY_MEDIUM_PIN = 12;
 const int RELAY_SLOW_PIN = 11;
 
-const int MANUAL_FAST_PIN = 8;
-const int MANUAL_MEDIUM_PIN = 7;
-const int MANUAL_SLOW_PIN = 6;
+const int MANUAL_FAST_PIN = A2;
+const int MANUAL_MEDIUM_PIN = A1;
+const int MANUAL_SLOW_PIN = A0;
+
+const int SIGNAL_QUALITY = 100;
+const float HIGH_VOLTAGE = 5.00;
 
 const int HIGHA = HIGH;
 const int LOWA = LOW;
@@ -44,38 +47,32 @@ void loop() {
 
 void fan(){
   if(irrecv.decode(&results)) {       
-    if(results.value != 0xFFFFFFFF) {
-      Serial.print("Hex: "); 
-      Serial.println(results.value, HEX);    
-      Serial.print("Dec: "); 
-      Serial.println(results.value, DEC);       
+    if(results.value != 0xFFFFFFFF) {     
       changeState(results.value);
     }    
   
     irrecv.resume();
   } else {
      
-     if(isHigh(A0)) {
+     if(isHigh(MANUAL_FAST_PIN)) {
        checkManual(THREE);
-     } else if (isHigh(A1)) {    
-      checkManual(TWO);
-     } else if (isHigh(A2)) {      
+     } else if (isHigh(MANUAL_MEDIUM_PIN)) {    
+       checkManual(TWO);
+     } else if (isHigh(MANUAL_SLOW_PIN)) {      
       checkManual(ONE);
      } else {
       checkManual(ZERO);
      }
      
   }
-
-  delay(600); 
 }
 
 boolean isHigh(int pin) {
   float manualFast = 0.0;
-  for(int i = 0; i < 50; i++) {
-   manualFast = manualFast + (analogRead(pin) * (5.0 / 1023.0));
+  for(int i = 0; i < SIGNAL_QUALITY; i++) {
+   manualFast = manualFast + (analogRead(pin) * (HIGH_VOLTAGE / 1023.0));
   }
-  return (manualFast / 50) == 5.00;
+  return (manualFast / SIGNAL_QUALITY) == HIGH_VOLTAGE;
 }
 
 void checkManual(long state) {
