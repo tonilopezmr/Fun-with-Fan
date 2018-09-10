@@ -42,10 +42,6 @@ void setup() {
 }
 
 void loop() {
-  fan();
-}
-
-void fan(){
   if(irrecv.decode(&results)) {       
     if(results.value != 0xFFFFFFFF) {     
       changeState(results.value);
